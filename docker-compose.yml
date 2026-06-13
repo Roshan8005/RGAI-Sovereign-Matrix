@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  discovery-server:
+    build:
+      context: .
+      dockerfile: Dockerfile.core
+    container_name: rgai-discovery
+    ports:
+      - "5002:5002"
+    environment:
+      - FLASK_ENV=production
+    command: python discovery_server.py
+    restart: unless-stopped
+
+  fractal-router:
+    build:
+      context: .
+      dockerfile: Dockerfile.core
+    container_name: rgai-router
+    depends_on:
+      - discovery-server
+    ports:
+      - "9999:9999/udp"
+    environment:
+      - DISCOVERY_SERVER_URL=http://discovery-server:5002
+    command: python launcher.py
+    restart: unless-stopped
+
+  dicom-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile.core
+    container_name: rgai-dicom-proxy
+    depends_on:
+      - discovery-server
+    ports:
+      - "11112:11112"
+    environment:
+      - DISCOVERY_SERVER_URL=http://discovery-server:5002
+    command: python dicom_proxy_gateway.py
+    restart: unless-stopped

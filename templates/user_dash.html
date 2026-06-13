@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RGAI - Sovereign Virtual World Portal</title>
+    <!-- Google Fonts for Modern Typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* 
+         * RGAI SOVEREIGN DESIGN SYSTEM
+         * Zero-dependency Vanilla CSS with Deep Glassmorphism & Fractal Aesthetics
+         */
+        :root {
+            --bg-color: #030704; /* Deep void space */
+            --accent-primary: #00ff66; /* Matrix vibrant green */
+            --accent-secondary: #00ccff; /* Ethereal blue */
+            --glass-bg: rgba(5, 20, 10, 0.4);
+            --glass-border: rgba(0, 255, 102, 0.2);
+            --text-main: #e0ffe8;
+            --text-muted: #6b9e7c;
+            --danger: #ff3366;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(0, 255, 102, 0.05), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(0, 204, 255, 0.05), transparent 25%);
+            color: var(--text-main);
+            font-family: 'Outfit', sans-serif;
+            margin: 0;
+            padding: 2rem;
+            min-height: 100vh;
+            overflow-x: hidden;
+            box-sizing: border-box;
+        }
+
+        /* Glitch & Glow Effects */
+        .glow-text {
+            text-shadow: 0 0 15px rgba(0, 255, 102, 0.6), 0 0 30px rgba(0, 255, 102, 0.2);
+        }
+        
+        .title-container {
+            text-align: center;
+            margin-bottom: 2.5rem;
+            position: relative;
+        }
+
+        h1 {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 2.5rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin: 0 0 0.5rem 0;
+            color: var(--accent-primary);
+        }
+
+        h2 {
+            font-weight: 300;
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* Layout */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 1.5rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Glassmorphism Panels */
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .glass-panel::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent-primary), transparent);
+            opacity: 0.3;
+        }
+
+        .panel-header {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            color: var(--accent-primary);
+            margin-top: 0;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Virtual World Canvas Frame */
+        .canvas-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #010301;
+            border-radius: 12px;
+            border: 1px solid rgba(0, 255, 102, 0.1);
+            position: relative;
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.8);
+            overflow: hidden;
+        }
+
+        canvas { 
+            display: block; 
+            width: 100%;
+            height: auto;
+            aspect-ratio: 16/9;
+        }
+
+        /* Stats & Ledger */
+        .stat-group {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(0, 255, 102, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .stat-group:hover {
+            border-color: rgba(0, 255, 102, 0.2);
+            box-shadow: 0 0 15px rgba(0, 255, 102, 0.05);
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: 0.3rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #fff;
+        }
+        
+        .stat-value span.highlight {
+            color: var(--accent-primary);
+        }
+
+        /* Live Audit Pipeline */
+        .live-log-box {
+            height: 220px;
+            overflow-y: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            line-height: 1.5;
+            padding-right: 5px;
+        }
+
+        /* Custom Scrollbar */
+        .live-log-box::-webkit-scrollbar { width: 4px; }
+        .live-log-box::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+        .live-log-box::-webkit-scrollbar-thumb { background: var(--accent-primary); border-radius: 4px; }
+
+        .log-entry {
+            display: grid;
+            grid-template-columns: auto auto 1fr;
+            gap: 10px;
+            padding: 8px;
+            border-bottom: 1px solid rgba(0, 255, 102, 0.05);
+            transition: background 0.2s ease;
+        }
+        
+        .log-entry:hover {
+            background: rgba(0, 255, 102, 0.05);
+        }
+
+        .log-txid { color: var(--accent-primary); opacity: 0.8; }
+        .log-val { color: #fff; font-weight: 600; }
+        .log-src { color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        /* Command Console Placeholder */
+        .command-console {
+            margin-top: 1.5rem;
+        }
+        
+        .command-input-wrapper {
+            display: flex;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .command-prefix {
+            padding: 10px 12px;
+            background: rgba(0, 255, 102, 0.1);
+            color: var(--accent-primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+        }
+        
+        .command-input {
+            flex-grow: 1;
+            background: transparent;
+            border: none;
+            color: #fff;
+            padding: 10px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+        }
+        
+        .command-input:focus {
+            outline: none;
+        }
+
+        @media (max-width: 1024px) {
+            .dashboard-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="title-container">
+        <h1 class="glow-text">🪐 RGAI SOVEREIGN MATRIX</h1>
+        <h2>Decentralized Cognitive Swarm & Asset Ledger</h2>
+    </div>
+
+    <div class="dashboard-grid">
+        
+        <!-- LEFT: THE INTERACTIVE VIRTUAL WORLD -->
+        <div class="glass-panel" style="display: flex; flex-direction: column;">
+            <h3 class="panel-header">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                LIVE SWARM WORKSPACE
+            </h3>
+            <div class="canvas-container" style="flex-grow: 1;">
+                <canvas id="worldCanvas" width="850" height="480"></canvas>
+            </div>
+            
+            <!-- Interactive Control Console (Phase 1 Placeholder) -->
+            <div class="command-console">
+                <div class="command-input-wrapper">
+                    <div class="command-prefix">root@rgai-core:~#</div>
+                    <input type="text" class="command-input" placeholder="Initiate mesh protocol or dispatch local SLM tasks..." id="cli-input" autocomplete="off">
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT: OPERATIONS LEDGER & WALLET STATE -->
+        <div class="glass-panel">
+            <h3 class="panel-header">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"></path><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"></path><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"></path></svg>
+                SOVEREIGN LEDGER
+            </h3>
+            
+            <div class="stat-group">
+                <div class="stat-label">Primary Anchor Node</div>
+                <div class="stat-value" style="font-size: 1rem; color: var(--accent-secondary);">Roshan_Sah_Primary_Core</div>
+            </div>
+
+            <div class="stat-group">
+                <div class="stat-label">Liquid Reserves (USD)</div>
+                <div class="stat-value">$<span id="wallet-general-usd" class="highlight">{{ data.user_ledger.balance_usd }}</span></div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div class="stat-group">
+                    <div class="stat-label">On-Chain (BTC)</div>
+                    <div class="stat-value" style="font-size: 1.1rem;"><span id="wallet-btc">{{ data.user_ledger.crypto_monitored_balance_btc or '0.00' }}</span></div>
+                </div>
+                <div class="stat-group">
+                    <div class="stat-label">Operations</div>
+                    <div class="stat-value" style="font-size: 1.1rem;"><span id="ops-count" class="highlight">{{ data.user_ledger.operations_completed }}</span></div>
+                </div>
+            </div>
+            
+            <h3 class="panel-header" style="margin-top: 1.5rem;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                TRANSACTION AUDIT
+            </h3>
+            
+            <div id="logBox" class="live-log-box">
+                {% if data.transactions %}
+                    {% for tx in data.transactions[-8:]|reverse %}
+                        <div class="log-entry">
+                            <span class="log-txid">[{{ tx.id[-6:] }}]</span>
+                            <span class="log-val">${{ tx.amount }}</span>
+                            <span class="log-src" title="{{ tx.source }}">{{ tx.source }}</span>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div style="color:var(--text-muted); font-style: italic; padding: 10px;">[System] Establishing cryptographic link with local node ledger...</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Virtual World Canvas Logic Engine - Ternary & Fractal Upgrade
+        const canvas = document.getElementById('worldCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        let centerX, centerY;
+        
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+            centerX = canvas.width / 2;
+            centerY = canvas.height / 2;
+        }
+        
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+        
+        const coreRadius = 20;
+        
+        // Initializing 32 Virtual Agents in ternary fractal orbits
+        let agents = [];
+        for (let i = 0; i < 32; i++) {
+            // Mapping to ternary states (-1, 0, 1) visually by distance layers
+            let ternaryLayer = (i % 3) - 1; // -1, 0, 1
+            let baseDistance = 100;
+            if(window.innerWidth < 768) baseDistance = 60;
+            
+            agents.push({
+                id: i + 1,
+                angle: (i * (360 / 32)) * (Math.PI / 180),
+                distance: baseDistance + (ternaryLayer * 40) + (Math.random() * 20), 
+                speed: 0.002 + (Math.random() * 0.006) * (ternaryLayer === 0 ? 1 : -1), // Orbit directions based on ternary state
+                size: 3 + Math.random() * 2,
+                state: ternaryLayer, // -1, 0, 1
+                history: [] // For particle trails
+            });
+        }
+
+        // Render Cycle Loop
+        function renderVirtualWorld() {
+            // Create a trail effect by not clearing completely
+            ctx.fillStyle = 'rgba(1, 3, 1, 0.2)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // 1. Fractal Web Matrix Background
+            ctx.strokeStyle = 'rgba(0, 255, 102, 0.03)';
+            ctx.lineWidth = 1;
+            const time = Date.now() * 0.0005;
+            
+            ctx.save();
+            ctx.translate(centerX, centerY);
+            ctx.rotate(time * 0.1);
+            for(let i=0; i<6; i++) {
+                ctx.beginPath();
+                ctx.arc(0, 0, 40 + (i * 40), 0, Math.PI * 2);
+                ctx.stroke();
+            }
+            ctx.restore();
+
+            // 2. Render and update the operational agents
+            agents.forEach(agent => {
+                agent.angle += agent.speed;
+                let x = centerX + Math.cos(agent.angle) * agent.distance;
+                let y = centerY + Math.sin(agent.angle) * agent.distance;
+                
+                // Track history for trails
+                agent.history.push({x, y});
+                if(agent.history.length > 15) agent.history.shift();
+                
+                // Draw Trails
+                if(agent.history.length > 1) {
+                    ctx.beginPath();
+                    ctx.moveTo(agent.history[0].x, agent.history[0].y);
+                    for(let i=1; i<agent.history.length; i++) {
+                        ctx.lineTo(agent.history[i].x, agent.history[i].y);
+                    }
+                    // Color based on ternary state
+                    if (agent.state === -1) ctx.strokeStyle = 'rgba(255, 51, 102, 0.5)'; // Negative/Vacuum
+                    else if (agent.state === 1) ctx.strokeStyle = 'rgba(0, 204, 255, 0.5)'; // Positive/Saturation
+                    else ctx.strokeStyle = 'rgba(0, 255, 102, 0.5)'; // Neutral/Balanced
+                    
+                    ctx.lineWidth = 1.5;
+                    ctx.stroke();
+                }
+
+                // Draw connecting rays occasionally (simulating mesh broadcast)
+                if(Math.random() > 0.98) {
+                    ctx.strokeStyle = 'rgba(0, 255, 102, 0.15)';
+                    ctx.beginPath();
+                    ctx.moveTo(centerX, centerY);
+                    ctx.lineTo(x, y);
+                    ctx.stroke();
+                }
+                
+                // Draw Agent Node
+                ctx.fillStyle = agent.state === 1 ? '#00ccff' : agent.state === -1 ? '#ff3366' : '#00ff66';
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = ctx.fillStyle;
+                ctx.beginPath();
+                ctx.arc(x, y, agent.size, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            });
+
+            // 3. Center Primary Anchor Node (Roshan Sah Core Matrix)
+            let glow = Math.sin(Date.now() * 0.004) * 15;
+            ctx.shadowBlur = 20 + glow;
+            ctx.shadowColor = "#00ff66";
+            
+            // Core Inner
+            ctx.fillStyle = '#00ff66';
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, coreRadius, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // Core Outer Ring
+            ctx.strokeStyle = 'rgba(0, 255, 102, 0.5)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, coreRadius + 10 + (Math.sin(time*2)*5), 0, 2 * Math.PI);
+            ctx.stroke();
+            
+            ctx.shadowBlur = 0; // reset
+            
+            // Core Label
+            ctx.fillStyle = '#000';
+            ctx.font = 'bold 12px "JetBrains Mono"';
+            ctx.fillText('CORE', centerX - 14, centerY + 4);
+
+            requestAnimationFrame(renderVirtualWorld);
+        }
+
+        // Asynchronous long polling to stream local json file status modifications dynamically
+        async function updateLedgerMetrics() {
+            try {
+                // Dynamically fetch based on target username endpoint
+                const username = window.location.pathname.split('/').pop();
+                if(!username) return;
+                
+                const response = await fetch('/api/user_data/' + username);
+                if (response.ok) {
+                    const data = await response.json();
+                    const ledger = data.user_ledger;
+                    
+                    document.getElementById('wallet-general-usd').innerText = ledger.balance_usd || '0.00';
+                    document.getElementById('wallet-btc').innerText = ledger.crypto_monitored_balance_btc || '0.00';
+                    // document.getElementById('wallet-usd').innerText = ledger.crypto_valuation_usd || '0.00';
+                    document.getElementById('ops-count').innerText = ledger.operations_completed || '0';
+                    
+                    // Render latest logs
+                    const logBox = document.getElementById('logBox');
+                    if (data.transactions && data.transactions.length > 0) {
+                        logBox.innerHTML = '';
+                        data.transactions.slice().reverse().slice(0, 20).forEach(tx => {
+                            let div = document.createElement('div');
+                            div.className = 'log-entry';
+                            
+                            // Extract short ID
+                            const shortId = tx.id.substring(tx.id.length - 6);
+                            
+                            div.innerHTML = `
+                                <span class="log-txid">[${shortId}]</span>
+                                <span class="log-val">$${tx.amount}</span>
+                                <span class="log-src" title="${tx.source}">${tx.source}</span>
+                            `;
+                            logBox.appendChild(div);
+                        });
+                    }
+                }
+            } catch (e) {
+                console.log("Polling gateway connection update frame retry...");
+            }
+        }
+        
+        // Console input handling (Visual only for Phase 1)
+        const cliInput = document.getElementById('cli-input');
+        cliInput.addEventListener('keypress', function(e) {
+            if(e.key === 'Enter' && this.value.trim() !== '') {
+                const cmd = this.value;
+                this.value = '';
+                // Add to log visually as system command
+                const logBox = document.getElementById('logBox');
+                let div = document.createElement('div');
+                div.className = 'log-entry';
+                div.innerHTML = `
+                    <span class="log-txid" style="color:var(--accent-secondary)">[EXEC]</span>
+                    <span class="log-val">-</span>
+                    <span class="log-src" style="color:var(--text-main)">> ${cmd}</span>
+                `;
+                logBox.insertBefore(div, logBox.firstChild);
+                
+                // Wire this to /api/v1/globalos/trigger-task in Phase 2
+                fetch('/api/v1/globalos/trigger-task', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ goal: cmd })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    let resDiv = document.createElement('div');
+                    resDiv.className = 'log-entry';
+                    if (data.error) {
+                        resDiv.innerHTML = `
+                            <span class="log-txid" style="color:var(--danger)">[ERR]</span>
+                            <span class="log-val">-</span>
+                            <span class="log-src" style="color:var(--danger)">Error: ${data.error}</span>
+                        `;
+                    } else {
+                        const shortId = data.task_id.substring(data.task_id.length - 6);
+                        resDiv.innerHTML = `
+                            <span class="log-txid" style="color:var(--accent-primary)">[OK:${shortId}]</span>
+                            <span class="log-val">+$${data.payout}</span>
+                            <span class="log-src" style="white-space: pre-wrap; word-break: break-word;">${data.output || 'Task Delegated to Mesh.'}</span>
+                        `;
+                    }
+                    logBox.insertBefore(resDiv, logBox.firstChild);
+                })
+                .catch(err => {
+                    let resDiv = document.createElement('div');
+                    resDiv.className = 'log-entry';
+                    resDiv.innerHTML = `
+                        <span class="log-txid" style="color:var(--danger)">[ERR]</span>
+                        <span class="log-val">-</span>
+                        <span class="log-src" style="color:var(--danger)">Gateway connection failure</span>
+                    `;
+                    logBox.insertBefore(resDiv, logBox.firstChild);
+                });
+            }
+        });
+
+        // Initialize Virtual Space Interfaces
+        renderVirtualWorld();
+        setInterval(updateLedgerMetrics, 3000); // Poll local changes every 3 seconds cleanly
+    </script>
+</body>
+</html>

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>RGAI - Sovereign Virtual World Portal</title>
+    <style>
+        body {
+            background-color: #050a05;
+            color: #00ff00;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+        h1, h2 { text-shadow: 0 0 10px #00ff00; }
+        .grid-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+        /* Virtual World Canvas Frame */
+        #virtual-world-container {
+            border: 2px solid #00ff00;
+            background: black;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
+            position: relative;
+        }
+        canvas { display: block; background: #010501; }
+        .stats-panel {
+            border: 2px solid #00ff00;
+            padding: 15px;
+            background: rgba(0, 20, 0, 0.6);
+        }
+        .live-log-box {
+            border: 1px solid #00ff00;
+            height: 250px;
+            overflow-y: scroll;
+            background: #000;
+            padding: 10px;
+            font-size: 12px;
+        }
+        .glitch-text { animation: pulse 2s infinite; }
+        @keyframes pulse {
+            0% { opacity: 0.8; }
+            50% { opacity: 1; text-shadow: 0 0 15px #00ff00; }
+            100% { opacity: 0.8; }
+        }
+    </style>
+</head>
+<body>
+
+    <h1 class="glitch-text">🪐 ROSHAN GLOBAL ADVANCED INTELLIGENCE 🪐</h1>
+    <h2>Sovereign Virtual Device Matrix & Monetization Space</h2>
+    <hr style="border: 1px solid #00ff00;">
+
+    <div class="grid-container">
+        <!-- LEFT: THE INTERACTIVE VIRTUAL WORLD -->
+        <div id="virtual-world-container">
+            <h3 style="padding-left: 15px; margin-bottom: 5px;">📍 LIVE MATRIX SWARM WORKSPACE</h3>
+            <canvas id="worldCanvas" width="750" height="480"></canvas>
+        </div>
+
+        <!-- RIGHT: OPERATIONS LEDGER & WALLET STATE -->
+        <div class="stats-panel">
+            <h3>💳 LIVE WEB3 MONETIZATION LEDGER</h3>
+            <p><strong>Primary Anchor Node:</strong> Roshan_Sah_Primary_Core</p>
+            <p><strong>General Balance:</strong> $<span id="wallet-general-usd" style="color:#fff;">{{ data.user_ledger.balance_usd }}</span> USD</p>
+            <p><strong>On-Chain Monitored Balance:</strong> <span id="wallet-btc" style="color:#fff;">{{ data.user_ledger.crypto_monitored_balance_btc or '0.00' }}</span> BTC</p>
+            <p><strong>Calculated Asset Value:</strong> $<span id="wallet-usd" style="color:#fff;">{{ data.user_ledger.crypto_valuation_usd or '0.00' }}</span> USD</p>
+            <p><strong>Network Operations:</strong> <span id="ops-count" style="color:#fff;">{{ data.user_ledger.operations_completed }}</span> Cycles</p>
+            
+            <h4>📜 TRANSACTION AUDIT PIPELINE</h4>
+            <div id="logBox" class="live-log-box">
+                {% if data.transactions %}
+                    {% for tx in data.transactions[-8:]|reverse %}
+                        <div style="margin-bottom: 6px;"><span style="color:#00ff00;">[{{ tx.id }}]</span> Val: ${{ tx.amount }} USD | <span style="color:#888;">{{ tx.source }}</span></div>
+                    {% endfor %}
+                {% else %}
+                    <div style="color:#888;">[System] Establishing link with local node files...</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Virtual World Canvas Logic Engine
+        const canvas = document.getElementById('worldCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        const coreRadius = 25;
+        
+        // Initializing 32 Virtual Agents in rotational state arrays
+        let agents = [];
+        for (let i = 0; i < 32; i++) {
+            agents.push({
+                id: i + 1,
+                angle: (i * (360 / 32)) * (Math.PI / 180),
+                distance: 120 + (i % 3) * 30, // Multi-layered swarm orbits
+                speed: 0.005 + (random() * 0.005),
+                size: 4,
+                pulseState: 0
+            });
+        }
+
+        function random() { return Math.random(); }
+
+        // Render Cycle Loop
+        function renderVirtualWorld() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 1. Drawing Grid System lines for aesthetic space constraints
+            ctx.strokeStyle = 'rgba(0, 50, 0, 0.3)';
+            ctx.lineWidth = 1;
+            for(let i=0; i<canvas.width; i+=40) {
+                ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); ctx.stroke();
+            }
+            for(let j=0; j<canvas.height; j+=40) {
+                ctx.beginPath(); ctx.moveTo(0, j); ctx.lineTo(canvas.width, j); ctx.stroke();
+            }
+
+            // 2. Center Primary Anchor Node (Roshan Sah Core Matrix)
+            let glow = Math.sin(Date.now() * 0.003) * 8;
+            ctx.shadowBlur = 15 + glow;
+            ctx.shadowColor = "#00ff00";
+            ctx.fillStyle = '#00ff00';
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, coreRadius, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.shadowBlur = 0; // reset
+            
+            ctx.fillStyle = '#000';
+            ctx.font = '10px Courier New';
+            ctx.fillText('RGAI', centerX - 12, centerY + 4);
+
+            // 3. Render and update the 32 operational agents
+            agents.forEach(agent => {
+                agent.angle += agent.speed; // Increment tracking angles
+                let x = centerX + Math.cos(agent.angle) * agent.distance;
+                let y = centerY + Math.sin(agent.angle) * agent.distance;
+                
+                // Draw connecting structural lines to core node
+                ctx.strokeStyle = 'rgba(0, 255, 0, 0.15)';
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.lineTo(x, y);
+                ctx.stroke();
+                
+                // Draw Agent Node particle elements
+                ctx.fillStyle = '#00ff00';
+                ctx.beginPath();
+                ctx.arc(x, y, agent.size, 0, 2 * Math.PI);
+                ctx.fill();
+            });
+
+            requestAnimationFrame(renderVirtualWorld);
+        }
+
+        // Asynchronous long polling to stream local json file status modifications dynamically
+        async function updateLedgerMetrics() {
+            try {
+                // Dynamically fetch based on target username endpoint
+                const username = window.location.pathname.split('/').pop();
+                const response = await fetch('/api/user_data/' + username);
+                if (response.ok) {
+                    const data = await response.json();
+                    const ledger = data.user_ledger;
+                    
+                    document.getElementById('wallet-general-usd').innerText = ledger.balance_usd || '0.00';
+                    document.getElementById('wallet-btc').innerText = ledger.crypto_monitored_balance_btc || '0.00';
+                    document.getElementById('wallet-usd').innerText = ledger.crypto_valuation_usd || '0.00';
+                    document.getElementById('ops-count').innerText = ledger.operations_completed || '0';
+                    
+                    // Render latest logs
+                    const logBox = document.getElementById('logBox');
+                    if (data.transactions && data.transactions.length > 0) {
+                        logBox.innerHTML = '';
+                        data.transactions.slice().reverse().slice(0, 8).forEach(tx => {
+                            let div = document.createElement('div');
+                            div.style.styleFloat = 'left';
+                            div.style.marginBottom = '6px';
+                            div.innerHTML = `<span style="color:#00ff00;">[${tx.id}]</span> Val: $${tx.amount} USD | <span style="color:#888;">${tx.source}</span>`;
+                            logBox.appendChild(div);
+                        });
+                    }
+                }
+            } catch (e) {
+                console.log("Polling gateway connection update frame retry...");
+            }
+        }
+
+        // Initialize Virtual Space Interfaces
+        renderVirtualWorld();
+        setInterval(updateLedgerMetrics, 3000); // Poll local changes every 3 seconds cleanly
+    </script>
+</body>
+</html>

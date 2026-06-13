@@ -1,0 +1,19 @@
+{
+  "owner": "Ankit_Kumar",
+  "user_ledger": {
+    "operations_completed": 12,
+    "balance_usd": 425.50
+  },
+  "primary_allocation": "Secure_Mesh_Routing",
+  "assigned_hardware_node": "RGAI_Ternary_Device_V2",
+  "status": "Active_In_Native_Network",
+  "transactions": [
+    {
+      "id": "TX_GH_1779182390_102",
+      "type": "github_bounty_execution",
+      "amount": 33.25,
+      "source": "GitHub Repo octocat/Hello-World | Issue #102",
+      "timestamp": "2026-05-18T12:00:00Z"
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Runtime databases and logs
+*.db
+*.sqlite3
+*.log
+
+# Sensitive credentials
+*.key
+*.pem
+node_credentials.json
+
+# Dynamic Network State files
+active_nodes.json
+
+# Build directories
+build/
+dist/
+*.egg-info/

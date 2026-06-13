@@ -1,0 +1,26 @@
+{
+  "native_websites": [
+    {
+      "function": "Automated_Bounty_Aggregator",
+      "site_url": "rgai.decentralized.hub",
+      "base_token_value": 95.0
+    },
+    {
+      "function": "Ternary_Cloud_Processing",
+      "site_url": "sah.protocol.matrix",
+      "base_token_value": 150.0
+    }
+  ],
+  "native_apps": [
+    {
+      "app_name": "RGAI_Fractal_Compressor",
+      "service_type": "Data_Optimization",
+      "base_token_value": 80.0
+    },
+    {
+      "app_name": "Sah_Signal_Encryptor",
+      "service_type": "Secure_Mesh_Communication",
+      "base_token_value": 120.0
+    }
+  ]
+}
