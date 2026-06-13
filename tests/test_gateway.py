@@ -25,6 +25,7 @@ def test_phi_strip_handle_store(mock_post):
     ds.PatientName = "John^Doe"
     ds.PatientID = "123456"
     ds.Modality = "CT"
+    ds.PixelData = b"\x00\x01\x02"  # Mock pixel data to trigger POST request
     
     mock_event = MockEvent(ds)
     
