@@ -1,0 +1,15 @@
+Exception in thread Thread-7 (run_real_monetization_engine):
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.Traceback (most recent call last):
+
+ * Running on http://127.0.0.1:5000
+  File "C:\Program Files\Python312\Lib\threading.py", line 1075, in _bootstrap_inner
+Press CTRL+C to quit    self.run()
+
+  File "C:\Program Files\Python312\Lib\threading.py", line 1012, in run
+    self._target(*self._args, **self._kwargs)
+  File "E:\VirtualUniverse\node_engine.py", line 29, in run_real_monetization_engine
+    print("\U0001f6f0\ufe0f  RGAI PHASE 5: GRAND UNIFIED COMMERCIAL NETWORK LIVE    ")
+  File "C:\Program Files\Python312\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 0-1: character maps to <undefined>

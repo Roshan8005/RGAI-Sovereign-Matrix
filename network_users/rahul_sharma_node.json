@@ -1,0 +1,19 @@
+{
+  "owner": "Rahul_Sharma",
+  "user_ledger": {
+    "operations_completed": 8,
+    "balance_usd": 280.00
+  },
+  "primary_allocation": "Fractal_Compression_Core",
+  "assigned_hardware_node": "RGAI_Ternary_Device_V3",
+  "status": "Active_In_Native_Network",
+  "transactions": [
+    {
+      "id": "TX_GH_1779182400_104",
+      "type": "github_bounty_execution",
+      "amount": 47.50,
+      "source": "GitHub Repo octocat/Hello-World | Issue #104",
+      "timestamp": "2026-05-18T12:15:00Z"
+    }
+  ]
+}

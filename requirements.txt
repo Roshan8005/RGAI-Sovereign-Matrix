@@ -1,0 +1,7 @@
+flask==3.0.3
+pydicom==2.4.4
+pynetdicom==2.0.2
+onnxruntime==1.17.1
+numpy==1.26.4
+requests==2.31.0
+cryptography==48.0.0

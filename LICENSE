@@ -1,0 +1,29 @@
+RGAI SOVEREIGN MATRIX DUAL LICENSE AGREEMENT
+
+Copyright (c) 2026, RGAI Sovereign Matrix Project
+All rights reserved.
+
+This software is distributed under a dual-licensing model:
+
+1. ACADEMIC AND NON-COMMERCIAL RESEARCH LICENSE (AGPLv3)
+======================================================================
+For academic institutions, independent researchers, and non-commercial open-source contributors, the RGAI Sovereign Matrix is licensed under the GNU Affero General Public License version 3 (AGPLv3).
+
+Under this license, you are free to inspect the cryptography, validate the inference models, and run the matrix locally for educational and non-commercial research purposes. Any modifications or integrations made to this software must be contributed back to the community under the same open-source terms.
+
+A copy of the AGPLv3 is available at https://www.gnu.org/licenses/agpl-3.0.en.html.
+
+
+2. COMMERCIAL ENTERPRISE LICENSE
+======================================================================
+For hospital networks, healthcare providers, PACS vendors, and any entity intending to deploy the RGAI Sovereign Matrix within a closed, proprietary, or revenue-generating environment, a Commercial Enterprise License is STRICTLY REQUIRED.
+
+The Commercial License removes the copyleft restrictions of the AGPLv3, granting the licensee the right to:
+- Integrate the DICOM Proxy and routing mesh into closed-source institutional networks.
+- Retain intellectual property rights over proprietary plugins, AI models, and UI dashboards built on top of the framework.
+- Receive priority technical support and cryptographic security audits.
+
+To obtain a Commercial Enterprise License, please contact the RGAI Architectural Steering Committee.
+
+----------------------------------------------------------------------
+DISCLAIMER: The software is provided "as is", without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose and noninfringement. In no event shall the authors or copyright holders be liable for any claim, damages or other liability, whether in an action of contract, tort or otherwise, arising from, out of or in connection with the software or the use or other dealings in the software.

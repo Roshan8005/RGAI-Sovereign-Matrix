@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>RGAI - Master Control Center</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #070a13; color: #e2e8f0; padding: 40px; margin: 0; }
+        .container { max-width: 1100px; margin: 0 auto; }
+        .panel-header { border-bottom: 2px solid #1e293b; padding-bottom: 20px; margin-bottom: 35px; }
+        .metrics-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; margin-bottom: 40px; }
+        .metric-card { background: #0f1423; border: 1px solid #1e293b; border-radius: 12px; padding: 25px; text-align: center; }
+        .metric-title { font-size: 14px; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+        .metric-value { font-size: 32px; font-weight: bold; margin-top: 10px; font-family: monospace; }
+        .vault-color { color: #f59e0b; text-shadow: 0 0 10px rgba(245,158,11,0.2); }
+        table { width: 100%; border-collapse: collapse; background: #0f1423; border: 1px solid #1e293b; border-radius: 12px; overflow: hidden; margin-bottom: 40px; }
+        th, td { padding: 18px; text-align: left; }
+        th { background: #1e293b; color: #94a3b8; font-size: 13px; text-transform: uppercase; }
+        td { border-bottom: 1px solid #1e293b; }
+        tr:last-child td { border: none; }
+        .status-tag { color: #10b981; font-weight: bold; font-size: 14px; }
+        
+        /* MESH GRAPH ANIMATIONS & STYLING */
+        .mesh-container {
+            background: #0f1423;
+            border: 1px solid #1e293b;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 40px;
+            min-height: 250px;
+            position: relative;
+            overflow: hidden;
+        }
+        .mesh-graph-grid {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 40px;
+            padding: 20px;
+        }
+        .mesh-node {
+            background: #131930;
+            border: 2px solid #3b82f6;
+            border-radius: 12px;
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            min-width: 240px;
+            position: relative;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 0.5s ease-out;
+        }
+        .master-node {
+            border-color: #f59e0b;
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.25);
+        }
+        .pulse-ring {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            position: relative;
+        }
+        .pulse-ring.green {
+            background: #10b981;
+            box-shadow: 0 0 10px #10b981;
+        }
+        .pulse-ring.green::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: #10b981;
+            animation: pulse 1.8s infinite ease-out;
+        }
+        .node-content {
+            display: flex;
+            flex-direction: column;
+        }
+        .node-content strong {
+            font-size: 15px;
+            color: #f8fafc;
+        }
+        .node-content span {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-top: 3px;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(2.8); opacity: 0; }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* GLOBALOS OPERATING LAYER SYSTEM STYLES */
+        .globalos-section-header {
+            border-top: 1px solid #1e293b;
+            padding-top: 35px;
+            margin-top: 50px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .globalos-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+        .globalos-card {
+            background: #0b0f19;
+            border: 1px solid #1e293b;
+            border-radius: 12px;
+            padding: 25px;
+            position: relative;
+        }
+        .globalos-console {
+            background: #05070c;
+            border: 1px solid #10b981;
+            border-radius: 8px;
+            padding: 20px;
+            font-family: monospace;
+            font-size: 13px;
+            color: #10b981;
+            margin-bottom: 20px;
+            min-height: 120px;
+            max-height: 180px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.1);
+        }
+        .input-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .console-input {
+            flex: 1;
+            background: #0f1423;
+            border: 1px solid #1e293b;
+            border-radius: 8px;
+            color: #f8fafc;
+            padding: 12px 18px;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s;
+        }
+        .console-input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.25);
+        }
+        .console-btn {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            border: none;
+            border-radius: 8px;
+            color: #ffffff;
+            font-weight: 600;
+            padding: 12px 24px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .console-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+        .console-btn:active {
+            transform: translateY(0);
+        }
+        .node-stat-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #131930;
+        }
+        .node-stat-row:last-child {
+            border-bottom: none;
+        }
+        .progress-bar-bg {
+            width: 100px;
+            height: 6px;
+            background: #1e293b;
+            border-radius: 3px;
+            overflow: hidden;
+            display: inline-block;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            background: #10b981;
+            width: 0%;
+            transition: width 0.5s;
+        }
+        .progress-bar-fill.warning {
+            background: #f59e0b;
+        }
+        .progress-bar-fill.danger {
+            background: #ef4444;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="panel-header">
+            <h1 style="margin: 0; font-size: 32px; color: #f8fafc;">👑 RGAI Matrix Operations Control</h1>
+            <p style="margin: 5px 0 0 0; color: #475569;">Ecosystem Overseer: Roshan_Sah | Global Swarm Framework</p>
+        </div>
+
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-title">Active Network Nodes</div>
+                <div class="metric-value" id="active-nodes" style="color: #3b82f6;">{{ vault.active_native_nodes }} Clones</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-title">Master Infra Fund (5% Tax Accumulated)</div>
+                <div class="metric-value vault-color" id="vault-fund">${{ vault.protocol_revenue_usd }} USD</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-title">Swarm Network Health</div>
+                <div class="metric-value" style="color: #10b981;">99.98% Stable</div>
+            </div>
+        </div>
+
+        <!-- Sleek High-Tech Dynamic Peer Mesh discovery graph visualizer -->
+        <h2 style="margin-bottom: 20px; color: #f8fafc;">🕸️ Active Peer Mesh Discovery Graph</h2>
+        <div class="mesh-container">
+            <div class="mesh-graph-grid" id="mesh-graph-grid">
+                <!-- Master Core Node (Always Persistent) -->
+                <div class="mesh-node master-node">
+                    <div class="pulse-ring green"></div>
+                    <div class="node-content">
+                        <strong>Roshan_Sah_Primary_Core</strong>
+                        <span style="color: #f59e0b; font-weight: 600;">Subnet Gateway (127.0.0.1)</span>
+                        <span id="master-capital-val" style="color: #10b981; font-family: monospace; font-size: 11px;">Loading...</span>
+                    </div>
+                </div>
+                <!-- Dynamic Nodes will spawn inside this grid via active UDP broadcasts -->
+            </div>
+        </div>
+
+        <!-- GLOBALOS RUNTIME ORCHESTRATION CONSOLE -->
+        <div class="globalos-section-header">
+            <h2 style="margin: 0; color: #f8fafc;">🧠 GlobalOS Distributed AI Layer</h2>
+            <span style="background: rgba(16, 185, 129, 0.15); color: #10b981; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; text-transform: uppercase;">Active Runtime</span>
+        </div>
+
+        <div class="globalos-console" id="console-terminal">System active. Type a high-level task goal below to orchestrate local SLM inference or trigger connectionless P2P mesh delegation.</div>
+        <div class="input-group">
+            <input type="text" id="console-input-field" class="console-input" placeholder="e.g. Verify local cryptographic network databases." onkeydown="if(event.key === 'Enter') triggerGlobalOSTask()">
+            <button class="console-btn" onclick="triggerGlobalOSTask()">Route AI Task</button>
+        </div>
+
+        <div class="globalos-grid">
+            <!-- Left Card: Dynamic Node registries & Telemetry stats -->
+            <div class="globalos-card">
+                <h3 style="margin-top: 0; margin-bottom: 20px; color: #f8fafc;">🖥️ Physical Mesh Telemetry</h3>
+                <div id="mesh-telemetry-container">
+                    <div class="node-stat-row">
+                        <div>
+                            <strong style="color: #f8fafc;">Node_Primary_Roshan</strong><br>
+                            <span style="font-size: 11px; color: #64748b;">Type: Gateway</span>
+                        </div>
+                        <div style="text-align: right;">
+                            <span style="font-size: 12px; font-family: monospace;">CPU: 22%</span>
+                            <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: 22%;"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Card: GlobalOS Ledger tasks list -->
+            <div class="globalos-card">
+                <h3 style="margin-top: 0; margin-bottom: 20px; color: #f8fafc;">📊 Decentralized AI Task Ledger</h3>
+                <div style="max-height: 250px; overflow-y: auto;">
+                    <table style="margin-bottom: 0; font-size: 13px;">
+                        <thead>
+                            <tr>
+                                <th>Task ID</th>
+                                <th>Goal / Executor</th>
+                                <th>Status</th>
+                                <th>Payout</th>
+                            </tr>
+                        </thead>
+                        <tbody id="globalos-task-rows">
+                            <tr>
+                                <td colspan="4" style="text-align: center; color: #64748b;">No active tasks registered.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <h2 style="margin-bottom: 20px; color: #f8fafc;">Live Swarm Citizen Registries</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>User Node Identity</th>
+                    <th>Ecosystem Status</th>
+                    <th>Hardware Profile</th>
+                    <th>Aggregated Net Capital</th>
+                </tr>
+            </thead>
+            <tbody id="user-rows">
+                {% for user in users %}
+                <tr>
+                    <td><strong style="color: #f8fafc;">{{ user.owner }}</strong></td>
+                    <td><span class="status-tag">{{ user.status }}</span></td>
+                    <td style="color: #94a3b8;">{{ user.assigned_hardware_node }}</td>
+                    <td style="color: #10b981; font-weight: bold; font-family: monospace;">${{ user.user_ledger.balance_usd }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Synchronized dynamic fetch cycles
+        function performNetworkSync() {
+            // Main Sync API call
+            fetch('/api/v1/network-sync')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('vault-fund').innerText = '$' + data.vault.protocol_revenue_usd + ' USD';
+                    document.getElementById('active-nodes').innerText = data.vault.active_native_nodes + ' Clones';
+                    
+                    // Update table registries
+                    const tbody = document.getElementById('user-rows');
+                    tbody.innerHTML = '';
+                    data.users.forEach(user => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td><strong style="color: #f8fafc;">${user.owner}</strong></td>
+                            <td><span class="status-tag">${user.status}</span></td>
+                            <td style="color: #94a3b8;">${user.assigned_hardware_node}</td>
+                            <td style="color: #10b981; font-weight: bold; font-family: monospace;">$${user.user_ledger.balance_usd}</td>
+                        `;
+                        tbody.appendChild(tr);
+                        
+                        // Extract master core capital to sync with the primary visual node
+                        if(user.owner === "Roshan_Sah") {
+                            document.getElementById('master-capital-val').innerText = 'Net Capital: $' + user.user_ledger.balance_usd + ' USD';
+                        }
+                    });
+                })
+                .catch(err => console.log("Signal delay: ", err));
+
+            // Mesh Peers dynamic broadcast discovery sync call
+            fetch('/api/v1/mesh-peers')
+                .then(response => response.json())
+                .then(peers => {
+                    const grid = document.getElementById('mesh-graph-grid');
+                    
+                    // Retain Master Node, clear old dynamically spawned peer cards
+                    const masterCard = grid.querySelector('.master-node');
+                    grid.innerHTML = '';
+                    grid.appendChild(masterCard);
+                    
+                    // Dynamic rendering of all auto-discovered local network devices
+                    Object.keys(peers).forEach(peerName => {
+                        const peer = peers[peerName];
+                        // Prevent duplicating Roshan_Sah node card if broadcast self-loops
+                        if(peerName !== "Roshan_Sah_Primary_Core") {
+                            const nodeCard = document.createElement('div');
+                            nodeCard.className = 'mesh-node';
+                            nodeCard.innerHTML = `
+                                <div class="pulse-ring green"></div>
+                                <div class="node-content">
+                                    <strong>${peerName}</strong>
+                                    <span>Peer IP: ${peer.address} (Ternary Mode)</span>
+                                    <span style="color: #10b981; font-family: monospace; font-size: 11px;">Net Capital: $${peer.capital} USD</span>
+                                </div>
+                            `;
+                            grid.appendChild(nodeCard);
+                        }
+                    });
+                })
+                .catch(err => console.log("Mesh networking delay: ", err));
+
+            // GlobalOS Dynamic Layer Sync
+            fetch('/api/v1/globalos/sync')
+                .then(response => response.json())
+                .then(data => {
+                    // Update Physical Nodes Telemetry list
+                    const telemetryContainer = document.getElementById('mesh-telemetry-container');
+                    telemetryContainer.innerHTML = '';
+                    
+                    if(data.nodes.length === 0) {
+                        telemetryContainer.innerHTML = '<div style="color: #64748b; font-size: 13px;">No physical ledger nodes detected.</div>';
+                    } else {
+                        data.nodes.forEach(node => {
+                            const cpu = node.cpu_load;
+                            const ram = node.ram_usage;
+                            const isCore = node.node_id.includes("Roshan") || node.node_id.includes("Primary");
+                            
+                            // Determine status color indicator
+                            const barClass = cpu > 80 ? 'danger' : (cpu > 50 ? 'warning' : '');
+                            
+                            const div = document.createElement('div');
+                            div.className = 'node-stat-row';
+                            div.innerHTML = `
+                                <div>
+                                    <strong style="color: ${isCore ? '#f59e0b' : '#f8fafc'};">${node.node_id}</strong><br>
+                                    <span style="font-size: 11px; color: #64748b;">IP: ${node.address} | status: ${node.status}</span>
+                                </div>
+                                <div style="text-align: right;">
+                                    <span style="font-size: 12px; font-family: monospace; color: #94a3b8;">CPU: ${cpu}% | RAM: ${ram}%</span>
+                                    <div class="progress-bar-bg">
+                                        <div class="progress-bar-fill ${barClass}" style="width: ${cpu}%;"></div>
+                                    </div>
+                                </div>
+                            `;
+                            telemetryContainer.appendChild(div);
+                        });
+                    }
+                    
+                    // Update GlobalOS tasks ledger
+                    const taskBody = document.getElementById('globalos-task-rows');
+                    taskBody.innerHTML = '';
+                    
+                    if(data.tasks.length === 0) {
+                        taskBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #64748b;">No active tasks registered.</td></tr>';
+                    } else {
+                        data.tasks.forEach(task => {
+                            const tr = document.createElement('tr');
+                            // Determine class based on task status
+                            const statusColor = task.status === 'Completed' ? '#10b981' : (task.status === 'In Progress' ? '#f59e0b' : '#3b82f6');
+                            
+                            tr.innerHTML = `
+                                <td style="font-family: monospace; color: #3b82f6;">${task.task_id}</td>
+                                <td>
+                                    <strong style="color: #e2e8f0;">${task.goal}</strong><br>
+                                    <span style="font-size: 11px; color: #64748b;">Exec: ${task.executor_id}</span>
+                                </td>
+                                <td><span style="color: ${statusColor}; font-weight: bold;">${task.status}</span></td>
+                                <td style="color: #10b981; font-family: monospace;">+$${task.payout.toFixed(4)}</td>
+                            `;
+                            taskBody.appendChild(tr);
+                        });
+                    }
+                })
+                .catch(err => console.log("GlobalOS Sync delay: ", err));
+        }
+
+        // Trigger AI Task routing execution
+        function triggerGlobalOSTask() {
+            const inputField = document.getElementById('console-input-field');
+            const goal = inputField.value.trim();
+            const terminal = document.getElementById('console-terminal');
+            
+            if(!goal) return;
+            
+            terminal.innerText = `[Routing Triggered] Transmitting task goal to orchestrator logic: "${goal}"...\n`;
+            inputField.value = '';
+            
+            fetch('/api/v1/globalos/trigger-task', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ goal: goal })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.error) {
+                    terminal.innerText += `\n[ERROR] Core Execution Error: ${data.error}`;
+                } else {
+                    if(data.delegated) {
+                        terminal.innerText += `\n[DELEGATED] Node capacity limits reached. Packed task into encrypted balanced ternary matrices.\nBroadcasted to subnet matrix coordinates (UDP Multi-cast Port 9998). Payout buffered: +$${data.payout.toFixed(4)}.`;
+                    } else {
+                        terminal.innerText += `\n[SUCCESS] Local SLM engine resolved task locally!\nExecutor: ${data.executor}\nOutput:\n${data.output}\nLedger Payout Synced: +$${data.payout.toFixed(4)} USD.`;
+                    }
+                }
+                // Scroll terminal to bottom
+                terminal.scrollTop = terminal.scrollHeight;
+                // Instant sync update
+                performNetworkSync();
+            })
+            .catch(err => {
+                terminal.innerText += `\n[CONNECTION FAILED] Offline runtime adapter: ${err}`;
+            });
+        }
+
+        // Initialize synchronized dynamic loops every 3 seconds
+        performNetworkSync();
+        setInterval(performNetworkSync, 3000);
+    </script>
+</body>
+</html>
+
