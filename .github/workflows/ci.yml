@@ -37,10 +37,6 @@ jobs:
         # exit-zero treats all errors as warnings
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
-    - name: Run Cryptographic Integrity Tests
+    - name: Run Test Suite
       run: |
-        # Ensure that the MeshCrypto and base routing protocols load without errors
-        # In a real environment we would invoke pytest here
-        python -c "import mesh_crypto; print('MeshCrypto Validated')"
-        python -c "import ternary_math_compressor; print('Ternary Compressor Validated')"
-        python -c "import local_ledger; print('SQLite Ledger Validated')"
+        pytest tests/
