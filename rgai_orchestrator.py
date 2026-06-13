@@ -57,12 +57,15 @@ def init_db():
                 priority INTEGER DEFAULT 0,
                 study_id TEXT,
                 fragment_data TEXT,
-                status TEXT, -- PENDING, ASSIGNED, COMPLETED
+                status TEXT, -- PENDING, ASSIGNED, COMPLETED, FAILED
                 assigned_node TEXT,
                 assigned_at REAL,
                 result_data TEXT
             )
         """)
+        # Create indexes for high-performance lookups
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_tasks_status ON tasks(status, priority DESC)")
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_nodes_state ON nodes(state)")
     conn.close()
 
 # ---------------------------------------------------------
@@ -71,18 +74,19 @@ def init_db():
 def disaster_recovery_worker():
     """
     Runs in the background. Finds orphaned tasks or tasks assigned to 
-    overheated nodes and instantly re-queues them (RTO < 200ms).
+    overheated nodes and instantly re-queues them.
+    Also implements Dead Letter Queue logic (5-minute timeout).
     """
     while True:
         try:
             conn = get_db_connection()
             now = time.time()
             with conn:
-                # 1. Mark stale nodes as disconnected (-1)
+                # 1. Heartbeat Timeout: Mark stale nodes as disconnected (-1) if no heartbeat for 30s
                 conn.execute("""
                     UPDATE nodes 
                     SET state = -1 
-                    WHERE state = 1 AND (? - last_heartbeat) > 5.0
+                    WHERE state = 1 AND (? - last_heartbeat) > 30.0
                 """, (now,))
                 
                 # 2. Find tasks assigned to dead/overheated nodes and re-queue them
@@ -93,10 +97,17 @@ def disaster_recovery_worker():
                         SELECT node_id FROM nodes WHERE state = -1
                     )
                 """)
+                
+                # 3. Dead Letter Queue: Tasks stuck in ASSIGNED for > 5 minutes (300s)
+                conn.execute("""
+                    UPDATE tasks 
+                    SET status = 'PENDING', assigned_node = NULL, assigned_at = NULL 
+                    WHERE status = 'ASSIGNED' AND (? - assigned_at) > 300.0
+                """, (now,))
             conn.close()
         except Exception as e:
             print(f"[Orchestrator DR] Warning: {e}")
-        time.sleep(0.5) # Run twice a second for < 500ms RTO
+        time.sleep(1.0) # Run every second to manage RTO
 
 # ---------------------------------------------------------
 # API ENDPOINTS
@@ -112,7 +123,7 @@ def heartbeat():
     state = 1
     if data.battery_temp > 45.0:
         state = -1 # Node is throttling, mark as unavailable
-        print(f"[Thermal Check] Node {data.node_id} overheating ({data.battery_temp}°C). Offlining.")
+        # Avoid printing repeatedly for 1000 nodes, but keep logic intact.
 
     conn = get_db_connection()
     with conn:
@@ -131,7 +142,6 @@ def heartbeat():
 
 @app.route("/add_task", methods=["POST"])
 def add_task():
-    """Called by the DICOM Gateway to push new fragmented studies into the queue."""
     try:
         data = TaskPayload(**request.json)
     except ValidationError as e:
@@ -149,19 +159,16 @@ def add_task():
 
 @app.route("/pull_task", methods=["GET"])
 def pull_task():
-    """Mobile nodes poll this endpoint for tasks."""
     node_id = request.args.get("node_id")
     if not node_id:
         return jsonify({"error": "node_id required"}), 400
 
     conn = get_db_connection()
-    # Ensure node is healthy before assigning
     node = conn.execute("SELECT state FROM nodes WHERE node_id = ?", (node_id,)).fetchone()
     if not node or node["state"] != 1:
         conn.close()
         return jsonify({"message": "Node is offline or overheating. Cannot assign task."}), 403
 
-    # Priority Queueing: Highest priority first, then FIFO
     task = conn.execute("""
         SELECT task_id, study_id, fragment_data 
         FROM tasks 
@@ -205,6 +212,30 @@ def submit_result():
     conn.close()
     return jsonify({"status": "success"})
 
+@app.route("/metrics", methods=["GET"])
+def metrics():
+    """Telemetry Aggregation Endpoint"""
+    conn = get_db_connection()
+    
+    active_nodes = conn.execute("SELECT COUNT(*) as count FROM nodes WHERE state = 1").fetchone()["count"]
+    offline_nodes = conn.execute("SELECT COUNT(*) as count FROM nodes WHERE state = -1").fetchone()["count"]
+    
+    avg_temp_row = conn.execute("SELECT AVG(battery_temp) as avg_temp FROM nodes WHERE state = 1").fetchone()
+    avg_temp = round(avg_temp_row["avg_temp"], 2) if avg_temp_row["avg_temp"] else 0.0
+
+    pending_tasks = conn.execute("SELECT COUNT(*) as count FROM tasks WHERE status = 'PENDING'").fetchone()["count"]
+    completed_tasks = conn.execute("SELECT COUNT(*) as count FROM tasks WHERE status = 'COMPLETED'").fetchone()["count"]
+    
+    conn.close()
+    
+    return jsonify({
+        "active_nodes": active_nodes,
+        "offline_nodes": offline_nodes,
+        "average_node_temp_c": avg_temp,
+        "pending_tasks": pending_tasks,
+        "completed_tasks": completed_tasks
+    })
+
 # ---------------------------------------------------------
 # ENTRY POINT
 # ---------------------------------------------------------
@@ -213,12 +244,12 @@ if __name__ == "__main__":
     print(" [RGAI] ORCHESTRATOR NODE INITIATING...")
     print("==========================================================")
     init_db()
-    print("[+] Task Ledger initialized with WAL mode.")
+    print("[+] Task Ledger initialized with WAL mode and Indexed Schema.")
     
     dr_thread = threading.Thread(target=disaster_recovery_worker, daemon=True)
     dr_thread.start()
-    print("[+] Disaster Recovery Watchdog running (<200ms RTO).")
-    print("[+] Starting Waitress WSGI Server on port 8080...")
+    print("[+] Disaster Recovery Watchdog running.")
+    print("[+] Starting Waitress WSGI Server on port 8080 (32 threads)...")
     
     # Waitress is production grade WSGI, suitable for handling concurrent node connections.
-    serve(app, host="0.0.0.0", port=8080)
+    serve(app, host="0.0.0.0", port=8080, threads=32)
