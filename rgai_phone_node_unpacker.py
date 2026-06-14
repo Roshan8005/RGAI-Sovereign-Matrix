@@ -31,6 +31,9 @@ except Exception:
 
 
 def fetch_bytes(uri: str, timeout=10):
+    """
+    Fetches raw bytes from either a local file path or an HTTP/HTTPS URL.
+    """
     parsed = urlparse(uri)
     if parsed.scheme in ("http", "https"):
         req = urllib.request.Request(uri, headers={"User-Agent": "RGAI-Node/1.0"})
@@ -43,6 +46,10 @@ def fetch_bytes(uri: str, timeout=10):
 
 
 def decrypt_if_needed(data: bytes, credentials_path: str = None):
+    """
+    Decrypts the provided byte payload if a MeshCrypto instance and 
+    valid credentials path are available. Otherwise, returns the raw data.
+    """
     if MeshCrypto is None or credentials_path is None:
         return data
     try:
@@ -54,6 +61,17 @@ def decrypt_if_needed(data: bytes, credentials_path: str = None):
 
 
 def assemble_rgai_manifest(manifest_uri: str, out_dir: str, credentials_path: str = None):
+    """
+    Core Unpacker Logic.
+    
+    1. Fetches the JSON manifest.
+    2. Downloads each encrypted, compressed part sequentially.
+    3. Decrypts via ChaCha20Poly1305.
+    4. Decompresses the GZIP payload.
+    5. Deserializes the Ternary Base-3 stream into a binary matrix.
+    6. Appends the binary data to the output file via zero-copy streaming.
+    7. Validates SHA256 checksums per part and against the final matrix.
+    """
     os.makedirs(out_dir, exist_ok=True)
 
     # Load manifest (local path or http)

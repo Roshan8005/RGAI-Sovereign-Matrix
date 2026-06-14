@@ -1,3 +1,10 @@
+"""
+Mesh Cryptography Module.
+
+Handles all secure peer-to-peer communications for the Sovereign Matrix.
+Implements X25519 Elliptic Curve Diffie-Hellman Key Exchange and the
+ChaCha20Poly1305 stream cipher for zero-trust UDP encryption on the edge.
+"""
 import os
 from cryptography.hazmat.primitives.asymmetric import x25519
 from cryptography.hazmat.primitives import hashes, serialization
@@ -22,6 +29,10 @@ class MeshCrypto:
         
     @classmethod
     def load_or_generate(cls, filename="router_credentials.key"):
+        """
+        Loads the private key from the given filename if it exists,
+        otherwise generates a new keypair and saves it to disk.
+        """
         import os
         if os.path.exists(filename):
             with open(filename, 'rb') as f:
@@ -34,12 +45,14 @@ class MeshCrypto:
             return instance
             
     def get_public_bytes(self):
+        """Returns the serialized raw public bytes for X25519."""
         return self.public_key.public_bytes(
             encoding=serialization.Encoding.Raw,
             format=serialization.PublicFormat.Raw
         )
         
     def get_private_bytes(self):
+        """Returns the serialized raw private bytes for X25519."""
         return self.private_key.private_bytes(
             encoding=serialization.Encoding.Raw,
             format=serialization.PrivateFormat.Raw,
@@ -64,6 +77,10 @@ class MeshCrypto:
         return self.shared_secret
         
     def encrypt(self, plaintext_bytes):
+        """
+        Encrypts the plaintext using ChaCha20Poly1305 with a random 12-byte nonce.
+        Prepends the nonce to the resulting ciphertext.
+        """
         if not self.chacha:
             raise ValueError("Shared secret not derived. Cannot encrypt.")
             
@@ -72,6 +89,10 @@ class MeshCrypto:
         return nonce + ciphertext
         
     def decrypt(self, payload_bytes):
+        """
+        Decrypts a payload encrypted by ChaCha20Poly1305.
+        Expects the first 12 bytes of the payload to be the nonce.
+        """
         if not self.chacha:
             raise ValueError("Shared secret not derived. Cannot decrypt.")
             

@@ -1,3 +1,10 @@
+"""
+DICOM Proxy Gateway Module.
+
+This module intercepts medical imaging DICOM C-STORE requests, strips Protected
+Health Information (PHI) in real-time, extracts the multi-frame volumetric pixel 
+data, and triggers ingestion on the RGAI Discovery Server for edge-inference distribution.
+"""
 import os
 import requests
 from pynetdicom import AE, evt, StoragePresentationContexts
