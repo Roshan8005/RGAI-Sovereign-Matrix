@@ -1,12 +1,7 @@
-﻿# Security Policy
+# Security Policy
 
 ## Supported Versions
-
-| Version | Supported          |
-| ------- | ------------------ |
-| 1.0.x   | :white_check_mark: |
-| < 1.0   | :x:                |
+Only the latest main branch commit is actively supported with security updates.
 
 ## Reporting a Vulnerability
-
-Please report security vulnerabilities directly via email to the core maintainer or use GitHub Security Advisories. We will triage and patch critical vulnerabilities within 48 hours.
+To report a vulnerability or an issue that compromises the Sovereign Matrix integrity, please open a private GitHub advisory or email the maintainer directly. Do NOT open a public issue.
